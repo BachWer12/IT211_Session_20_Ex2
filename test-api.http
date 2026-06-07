@@ -1,0 +1,88 @@
+### =========================
+### Kịch bản 1: Login ADMIN
+### =========================
+
+POST http://localhost:8080/api/gallery/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456"
+}
+
+### Copy accessToken và refreshToken của admin
+
+
+### ADMIN gọi danh sách artwork
+### Kết quả mong muốn:
+### Admin thấy toàn bộ 4 tác phẩm, gồm cả published = false
+
+GET http://localhost:8080/api/gallery/artworks
+Authorization: Bearer {{adminAccessToken}}
+
+
+### =========================
+### Kịch bản 2: Login ARTIST A
+### =========================
+
+POST http://localhost:8080/api/gallery/auth/login
+Content-Type: application/json
+
+{
+  "username": "artist_a",
+  "password": "123456"
+}
+
+### Copy accessToken và refreshToken của artist_a
+
+
+### ARTIST A gọi danh sách artwork
+### Kết quả mong muốn:
+### Thấy:
+### - Tác phẩm public của mọi người
+### - Tác phẩm unpublished của chính artist_a
+### Không thấy unpublished của artist_b
+
+GET http://localhost:8080/api/gallery/artworks
+Authorization: Bearer {{artistAAccessToken}}
+
+
+### =========================
+### Kịch bản 3: Không truyền token
+### =========================
+
+GET http://localhost:8080/api/gallery/artworks
+
+### Kết quả mong muốn: 401 Unauthorized
+
+
+### =========================
+### Kịch bản 4: Refresh token
+### =========================
+
+POST http://localhost:8080/api/gallery/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{artistARefreshToken}}"
+}
+
+
+### =========================
+### Kịch bản 5: Logout
+### =========================
+
+POST http://localhost:8080/api/gallery/auth/logout
+Content-Type: application/json
+Authorization: Bearer {{artistAAccessToken}}
+
+{
+  "refreshToken": "{{artistARefreshToken}}"
+}
+
+
+### Sau logout, gọi lại bằng Access Token cũ
+### Kết quả mong muốn: 401 Unauthorized
+
+GET http://localhost:8080/api/gallery/artworks
+Authorization: Bearer {{artistAAccessToken}}
